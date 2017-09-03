@@ -59,10 +59,14 @@ Shader "Custom / Tetrahedron Auto Normals" {
 			float4 MyFragmentProgram (Interpolators i) : SV_TARGET {
 
 				float3 n013 = -i.normals;
+				float3 n012 = -i.normals;
+				float3 n023 = -i.normals;
+				float3 n132 = -i.normals;
+
 				//float3 n013 = float3(0.0,-pow(2.0,0.5),1.0);
-				float3 n012 = float3(0.0,pow(2.0,0.5),1.0); // orientation matters!
-				float3 n023 = float3(pow(2.0,0.5),0.0,-1.0);
-				float3 n132 = float3(-pow(2.0,0.5),0.0,-1.0);
+				//float3 n012 = float3(0.0,pow(2.0,0.5),1.0); // orientation matters!
+				//float3 n023 = float3(pow(2.0,0.5),0.0,-1.0);
+				//float3 n132 = float3(-pow(2.0,0.5),0.0,-1.0);
 
 				float3 ptA = float3(-1.0,0.0,-pow(2.0,-0.5));
 				float3 ptB = float3(1.0,0.0,-pow(2.0,-0.5));
