@@ -1,12 +1,4 @@
-﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-Shader "Custom / Tetrahedron Manual Normals" {
+﻿Shader "Custom / Tetrahedron Manual Normals" {
 
 	Properties {
 
@@ -21,7 +13,7 @@ Shader "Custom / Tetrahedron Manual Normals" {
 
 	}
 
-	// Matrix Multplication not supported in unity shaders! What.
+
 
 
 	Subshader {
@@ -42,12 +34,159 @@ Shader "Custom / Tetrahedron Manual Normals" {
 			float4 	_Color023;
 			float 	_Epsilon;
 
+			float w = pow(2.0,-0.5);
+			float pi = 3.14159;
+
+
+
+
+			float3 MxV (float3 col1, float3 col2, float3 col3, float3 v) {
+
+				float m11 = col1.x;
+				float m21 = col1.y;
+				float m31 = col1.z;
+				float m12 = col2.x;
+				float m22 = col2.y;
+				float m32 = col2.z;
+				float m13 = col3.x;
+				float m23 = col3.y;
+				float m33 = col3.z;
+				float v1 = v.x;
+				float v2 = v.y;
+				float v3 = v.z;
+
+				return float3 (
+					m11*v1+m12*v2+m13*v3,
+					m21*v1+m22*v2+m23*v3,
+					m31*v1+m32*v2+m33*v3
+				);
+			}
+
+			float3 MTRANSxV (float3 col1, float3 col2, float3 col3, float3 v) {
+
+				float m11 = col1.x;
+				float m21 = col1.y;
+				float m31 = col1.z;
+				float m12 = col2.x;
+				float m22 = col2.y;
+				float m32 = col2.z;
+				float m13 = col3.x;
+				float m23 = col3.y;
+				float m33 = col3.z;
+				float v1 = v.x;
+				float v2 = v.y;
+				float v3 = v.z;
+
+				return float3 (
+					m11*v1+m21*v2+m31*v3,
+					m12*v1+m22*v2+m32*v3,
+					m13*v1+m23*v2+m33*v3
+				);
+			}
+
+
+			float3 MINVxV (float3 col1, float3 col2, float3 col3, float3 v) {
+
+				float m11 = col1.x;
+				float m21 = col1.y;
+				float m31 = col1.z;
+				float m12 = col2.x;
+				float m22 = col2.y;
+				float m32 = col2.z;
+				float m13 = col3.x;
+				float m23 = col3.y;
+				float m33 = col3.z;
+				float v1 = v.x;
+				float v2 = v.y;
+				float v3 = v.z;
+
+				float3 inv = float3 (
+					(m22*m33-m23*m32)*v1+(m13*m32-m12*m33)*v2+(m12*m23-m13*m22)*v3,
+					(m23*m31-m21*m33)*v1+(m11*m33-m13*m31)*v2+(m13*m21-m11*m23)*v3,
+					(m21*m32-m22*m31)*v1+(m12*m31-m11*m32)*v2+(m11*m22-m12*m21)*v3
+				);
+
+				float det = m11*(m22*m33-m23*m32)-m12*(m21*m33-m23*m31)+m13*(m21*m32-m22*m31);
+
+				return inv * pow(det,-1.0);
+			}
+
+
+			float3 MTRANSINVxV (float3 col1, float3 col2, float3 col3, float3 v) {
+				// note that indices on cols are switched
+				float m11 = col1.x;
+				float m21 = col2.x;
+				float m31 = col3.x;
+				float m12 = col1.y;
+				float m22 = col2.y;
+				float m32 = col3.y;
+				float m13 = col1.z;
+				float m23 = col2.z;
+				float m33 = col3.z;
+				float v1 = v.x;
+				float v2 = v.y;
+				float v3 = v.z;
+
+				float3 inv = float3 (
+					(m22*m33-m23*m32)*v1+(m13*m32-m12*m33)*v2+(m12*m23-m13*m22)*v3,
+					(m23*m31-m21*m33)*v1+(m11*m33-m13*m31)*v2+(m13*m21-m11*m23)*v3,
+					(m21*m32-m22*m31)*v1+(m12*m31-m11*m32)*v2+(m11*m22-m12*m21)*v3
+				);
+
+				float det = m11*(m22*m33-m23*m32)-m12*(m21*m33-m23*m31)+m13*(m21*m32-m22*m31);
+
+				return inv * pow(det,-1.0);
+			}
+
+
+			float3 P2Q(float3 v){
+
+
+				float3 p0 = float3(-1,0,-w);
+				float3 p1 = float3(1,0,-w);
+				float3 p2 = float3(0,-1,w);
+				float3 p3 = float3(0,1,w);
+
+				float3 q0 = float3(cos(pi/2),sin(pi/2),0);
+				float3 q1 = float3(cos(7*pi/6),sin(7*pi/6),0);
+				float3 q2 = float3(cos(11*pi/6),sin(11*pi/6),0);
+
+
+				float3 col1 = MTRANSINVxV(p3,p0,p1,float3(q0.x,q1.x,q2.x));
+				float3 col2 = MTRANSINVxV(p3,p0,p1,float3(q0.y,q1.y,q2.y));
+				float3 col3 = MTRANSINVxV(p3,p0,p1,float3(q0.z,q1.z,q2.z));
+
+				return MxV(col1,col2,col3,v);
+
+			}
+
+			float3 Q2P(float3 v){
+
+				float3 p0 = float3(-1,0,-w);
+				float3 p1 = float3(1,0,-w);
+				float3 p2 = float3(0,-1,w);
+				float3 p3 = float3(0,1,w);
+
+				float3 q0 = float3(cos(pi/2),sin(pi/2),0);
+				float3 q1 = float3(cos(7*pi/6),sin(7*pi/6),0);
+				float3 q2 = float3(cos(11*pi/6),sin(11*pi/6),0);
+
+				float3 col1 = MTRANSINVxV(p3,p0,p1,float3(q0.x,q1.x,q2.x));
+				float3 col2 = MTRANSINVxV(p3,p0,p1,float3(q0.y,q1.y,q2.y));
+				float3 col3 = MTRANSINVxV(p3,p0,p1,float3(q0.z,q1.z,q2.z));
+
+				return MINVxV(col1,col2,col3,v);
+
+			}
+
+
 
 			struct Interpolators {
 				float4 position : SV_POSITION;
 				float3 localPosition : TEXCOORD0;
 
 			};
+
 
 			Interpolators MyVertexProgram (float4 position : POSITION) {
 				Interpolators i;
@@ -77,11 +216,12 @@ Shader "Custom / Tetrahedron Manual Normals" {
 				float eps = 1 + _Epsilon;
 
 			
-				float3 fragColor = 1.0 * _Color013.xyz * (step(dot(n013,localPosition), dot(n013,pt013) / eps)-step(dot(n013,localPosition), dot(n013,pt013) * eps)) 
+				float3 fragColor = MINVxV(float3(1,1,0),float3(1,2,0),float3(1,3,1),MxV(float3(1,1,0),float3(1,2,0),float3(1,3,1),float3(1,1,0))) * _Color013.xyz * (step(dot(n013,localPosition), dot(n013,pt013) / eps)-step(dot(n013,localPosition), dot(n013,pt013) * eps)) 
 								 + 1.0 * _Color132.xyz * (step(dot(n132,localPosition), dot(n132,pt132) / eps)-step(dot(n132,localPosition), dot(n132,pt132) * eps))
 								 + 1.0 * _Color012.xyz * (step(dot(n012,localPosition), dot(n012,pt012) / eps)-step(dot(n012,localPosition), dot(n012,pt012) * eps))
 								 + 1.0 * _Color023.xyz * (step(dot(n023,localPosition), dot(n023,pt023) / eps)-step(dot(n023,localPosition), dot(n023,pt023) * eps));
 
+				//return float4(P2Q(localPosition),1.0);
 				return float4(fragColor,1.0);
 			}
 
