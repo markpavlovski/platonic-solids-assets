@@ -21,7 +21,7 @@ Shader "Custom / Tetrahedron Manual Normals" {
 
 	}
 
-
+	// Matrix Multplication not supported in unity shaders! What.
 
 
 	Subshader {
@@ -41,6 +41,7 @@ Shader "Custom / Tetrahedron Manual Normals" {
 			float4 	_Color012;
 			float4 	_Color023;
 			float 	_Epsilon;
+
 
 			struct Interpolators {
 				float4 position : SV_POSITION;
