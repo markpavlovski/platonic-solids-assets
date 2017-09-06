@@ -9,11 +9,7 @@
 		_Color023 ("Color023", Color) = (1,1,1,1)
 		_Color132 ("Color132", Color) = (1,1,1,1)
 		_Epsilon ("Epsilon", Range(0,1)) = 0.01
-
-
 	}
-
-
 
 
 	Subshader {
@@ -34,8 +30,8 @@
 			float4 	_Color023;
 			float 	_Epsilon;
 
-			float w = pow(2.0,-0.5);
-			float pi = 3.14159;
+			float w = 0.70710678118;
+			float pi = 3.14159265359;
 
 
 
@@ -94,19 +90,19 @@
 			float3 P2Q(float3 v){
 
 
-				float3 p0 = float3(-1,0,-2);
-				float3 p1 = float3(1,0,-3);
-				float3 p2 = float3(0,-1,17);
-				float3 p3 = float3(0,1,w);
+				float3 p0 = float3(-1,0,-w);
+				float3 p1 = float3(1,0,-w);
+				float3 p2 = float3(0,-1,w);
+				float3 p3 = float3(0,1, w);
 
-				float3 q0 = float3(1,2,3);
-				float3 q1 = float3(3,8,7);
-				float3 q2 = float3(9,-11,0);
+				float3 q0 = float3(-0.86602540378,-0.5,0);
+				float3 q1 = float3(0,1,0);
+				float3 q2 = float3(0.86602540378,-0.5,0);
 
 
 				float3 col1 = MINVxV(p0,p3,p1,q0);
-				float3 col2 = MINVxV(p0,p3,p1,q0);
-				float3 col3 = MINVxV(p0,p3,p1,q0);
+				float3 col2 = MINVxV(p0,p3,p1,q1);
+				float3 col3 = MINVxV(p0,p3,p1,q2);
 
 				return MxV(col1,col2,col3,v);
 
