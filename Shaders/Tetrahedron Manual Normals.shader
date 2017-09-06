@@ -139,45 +139,20 @@
 			}
 
 
-			float3 P2Q(float3 v){
+			float3 P2Q(float3 _p0, float3 _p1, float3 _p2, float3 v){
 
-
-				float3 p0 = float3(-1,0,-w);
-				float3 p1 = float3(1,0,-w);
-				float3 p2 = float3(0,-1,w);
-				float3 p3 = float3(0,1,w);
-
-				float3 q0 = float3(cos(pi/2),sin(pi/2),0);
-				float3 q1 = float3(cos(7*pi/6),sin(7*pi/6),0);
+				float3 q0 = float3(cos(7*pi/6),sin(7*pi/6),0);
+				float3 q1 = float3(cos(pi/2),sin(pi/2),0);
 				float3 q2 = float3(cos(11*pi/6),sin(11*pi/6),0);
 
-
-				float3 col1 = MTRANSINVxV(p3,p0,p1,float3(q0.x,q1.x,q2.x));
-				float3 col2 = MTRANSINVxV(p3,p0,p1,float3(q0.y,q1.y,q2.y));
-				float3 col3 = MTRANSINVxV(p3,p0,p1,float3(q0.z,q1.z,q2.z));
+				float3 col1 = MINVxV(_p0,_p1,_p2,q0);
+				float3 col2 = MINVxV(_p0,_p1,_p2,q1);
+				float3 col3 = MINVxV(_p0,_p1,_p2,q2);
 
 				return MxV(col1,col2,col3,v);
 
 			}
 
-			float3 Q2P(float3 v){
-
-				float3 p0 = float3(-1,0,-w);
-				float3 p1 = float3(1,0,-w);
-				float3 p2 = float3(0,-1,w);
-				float3 p3 = float3(0,1,w);
-
-				float3 q0 = float3(cos(pi/2),sin(pi/2),0);
-				float3 q1 = float3(cos(7*pi/6),sin(7*pi/6),0);
-				float3 q2 = float3(cos(11*pi/6),sin(11*pi/6),0);
-
-				float3 col1 = MTRANSINVxV(p3,p0,p1,float3(q0.x,q1.x,q2.x));
-				float3 col2 = MTRANSINVxV(p3,p0,p1,float3(q0.y,q1.y,q2.y));
-				float3 col3 = MTRANSINVxV(p3,p0,p1,float3(q0.z,q1.z,q2.z));
-
-				return MINVxV(col1,col2,col3,v);
-
-			}
 
 
 
@@ -197,31 +172,41 @@
 
 			float4 MyFragmentProgram (Interpolators i) : SV_TARGET {
 
+				float3 p0 = float3(-1,0,-w);
+				float3 p1 = float3(1,0,-w);
+				float3 p2 = float3(0,-1,w);
+				float3 p3 = float3(0,1,w);
+
 				float3 n013 = float3(0.0,-pow(2.0,0.5),1.0);
 				float3 n012 = float3(0.0,pow(2.0,0.5),1.0); // orientation matters!
 				float3 n023 = float3(pow(2.0,0.5),0.0,-1.0);
 				float3 n132 = float3(-pow(2.0,0.5),0.0,-1.0);
 
-				float3 ptA = float3(-1.0,0.0,-pow(2.0,-0.5));
-				float3 ptB = float3(1.0,0.0,-pow(2.0,-0.5));
-
-				float3 pt013 = ptA;
-				float3 pt012 = ptA;
-				float3 pt023 = ptA;
-				float3 pt132 = ptB;
+				float3 pt013 = p0;
+				float3 pt012 = p0;
+				float3 pt023 = p0;
+				float3 pt132 = p1;
 
 
 				float3 localPosition = i.localPosition;
-
 				float eps = 1 + _Epsilon;
 
-			
-				float3 fragColor = MINVxV(float3(1,1,0),float3(1,2,0),float3(1,3,1),MxV(float3(1,1,0),float3(1,2,0),float3(1,3,1),float3(1,1,0))) * _Color013.xyz * (step(dot(n013,localPosition), dot(n013,pt013) / eps)-step(dot(n013,localPosition), dot(n013,pt013) * eps)) 
-								 + 1.0 * _Color132.xyz * (step(dot(n132,localPosition), dot(n132,pt132) / eps)-step(dot(n132,localPosition), dot(n132,pt132) * eps))
-								 + 1.0 * _Color012.xyz * (step(dot(n012,localPosition), dot(n012,pt012) / eps)-step(dot(n012,localPosition), dot(n012,pt012) * eps))
-								 + 1.0 * _Color023.xyz * (step(dot(n023,localPosition), dot(n023,pt023) / eps)-step(dot(n023,localPosition), dot(n023,pt023) * eps));
+				
+				float3 faceOnePosition = P2Q(p0,p3,p1,localPosition);
+				float3 faceTwoPosition = P2Q(p0,p2,p1,localPosition);
+				float3 faceThreePosition = P2Q(p0,p2,p3,localPosition);
+				float3 faceFourPosition = P2Q(p1,p3,p2,localPosition);
 
-				//return float4(P2Q(localPosition),1.0);
+				float faceOne = max(faceOnePosition.x,0);
+				float faceTwo = 1;
+				float faceThree = 1;
+				float faceFour = 1;
+
+				float3 fragColor = faceOne * _Color013.xyz * (step(dot(n013,localPosition), dot(n013,pt013) / eps)-step(dot(n013,localPosition), dot(n013,pt013) * eps)) 
+								 + faceTwo * _Color132.xyz * (step(dot(n132,localPosition), dot(n132,pt132) / eps)-step(dot(n132,localPosition), dot(n132,pt132) * eps))
+								 + faceThree * _Color012.xyz * (step(dot(n012,localPosition), dot(n012,pt012) / eps)-step(dot(n012,localPosition), dot(n012,pt012) * eps))
+								 + faceFour * _Color023.xyz * (step(dot(n023,localPosition), dot(n023,pt023) / eps)-step(dot(n023,localPosition), dot(n023,pt023) * eps));
+
 				return float4(fragColor,1.0);
 			}
 
