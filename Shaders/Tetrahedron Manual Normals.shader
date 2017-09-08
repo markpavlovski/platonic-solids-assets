@@ -151,7 +151,7 @@
 
 
 				float3 faceOnePosition = P2Q(localPosition);
-				float faceOne = step(faceOnePosition.x,0);
+				float faceOne = step(faceOnePosition.x*faceOnePosition.x+faceOnePosition.y*faceOnePosition.y,abs(_SinTime.w));
 
 			
 				float3 fragColor =  faceOne * _Color013.xyz * (step(dot(n013,localPosition), dot(n013,pt013) / eps)-step(dot(n013,localPosition), dot(n013,pt013) * eps)) 
