@@ -5,6 +5,7 @@
 		_Tint ("Tint", Color) = (1,1,1,1)
 		_MainTex( "Texture", 2D) = "white" {}
 		_Color013 ("Color013", Color) = (1,1,1,1)
+		_Color013_2 ("Color013_2", Color) = (1,1,1,1)
 		_Color012 ("Color012", Color) = (1,1,1,1)
 		_Color023 ("Color023", Color) = (1,1,1,1)
 		_Color132 ("Color132", Color) = (1,1,1,1)
@@ -25,6 +26,7 @@
 
 			float4 	_Tint;
 			float4 	_Color013;
+			float4 	_Color013_2;
 			float4 	_Color132;
 			float4 	_Color012;
 			float4 	_Color023;
@@ -99,16 +101,9 @@
 				float3 q2 = float3(0.86602540378,-0.5,0);
 
 
-				//float3 col1 = MINVxV(p0,p3,p1,q0);
-				//float3 col2 = MINVxV(p0,p3,p1,q1);
-				//float3 col3 = MINVxV(p0,p3,p1,q2);
+				float3 inv = MINVxV(p0,p3,p1,v);
 
-				float3 col1 = float3(0.866025,0,0);
-				float3 col2 = float3(0,0.5,0);
-				float3 col3 = float3(0,0.707107,0);
-
-
-				return MxV(col1,col2,col3,v);
+				return MxV(q0,q1,q2,inv);
 
 			}
 
@@ -151,10 +146,11 @@
 
 
 				float3 faceOnePosition = P2Q(localPosition);
-				float faceOne = step(faceOnePosition.x*faceOnePosition.x+faceOnePosition.y*faceOnePosition.y,abs(_SinTime.w));
+				float3 faceOne = _Color013.xyz * step(faceOnePosition.x*faceOnePosition.x+faceOnePosition.y*faceOnePosition.y,.09*_SinTime.w*_SinTime.w+.09)+
+								 _CosTime.wyz * _CosTime.wyz * step(.09*_SinTime.w*_SinTime.w+.09,faceOnePosition.x*faceOnePosition.x+faceOnePosition.y*faceOnePosition.y);
 
 			
-				float3 fragColor =  faceOne * _Color013.xyz * (step(dot(n013,localPosition), dot(n013,pt013) / eps)-step(dot(n013,localPosition), dot(n013,pt013) * eps)) 
+				float3 fragColor =  faceOne * (step(dot(n013,localPosition), dot(n013,pt013) / eps)-step(dot(n013,localPosition), dot(n013,pt013) * eps)) 
 								 + 1.0 * _Color132.xyz * (step(dot(n132,localPosition), dot(n132,pt132) / eps)-step(dot(n132,localPosition), dot(n132,pt132) * eps))
 								 + 1.0 * _Color012.xyz * (step(dot(n012,localPosition), dot(n012,pt012) / eps)-step(dot(n012,localPosition), dot(n012,pt012) * eps))
 								 + 1.0 * _Color023.xyz * (step(dot(n023,localPosition), dot(n023,pt023) / eps)-step(dot(n023,localPosition), dot(n023,pt023) * eps));
