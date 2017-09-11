@@ -89,19 +89,15 @@
 
 
 
-			float3 P2Q(float3 v){
+			float3 P2Q(float3 _pt0, float3 _pt1, float3 _pt2, float3 v){
 
-				float3 p0 = float3(-1,0,-0.70710678118);
-				float3 p1 = float3(1,0,-0.70710678118);
-				float3 p2 = float3(0,-1,0.70710678118);
-				float3 p3 = float3(0,1, 0.70710678118);
 
 				float3 q0 = float3(-0.86602540378,-0.5,0);
 				float3 q1 = float3(0,1,0);
 				float3 q2 = float3(0.86602540378,-0.5,0);
 
 
-				float3 inv = MINVxV(p0,p3,p1,v);
+				float3 inv = MINVxV(_pt0,_pt1,_pt2,v);
 
 				return MxV(q0,q1,q2,inv);
 
@@ -131,6 +127,11 @@
 				float3 n023 = float3(pow(2.0,0.5),0.0,-1.0);
 				float3 n132 = float3(-pow(2.0,0.5),0.0,-1.0);
 
+				float3 p0 = float3(-1,0,-0.70710678118);
+				float3 p1 = float3(1,0,-0.70710678118);
+				float3 p2 = float3(0,-1,0.70710678118);
+				float3 p3 = float3(0,1, 0.70710678118);
+
 				float3 ptA = float3(-1.0,0.0,-pow(2.0,-0.5));
 				float3 ptB = float3(1.0,0.0,-pow(2.0,-0.5));
 
@@ -145,15 +146,23 @@
 				float eps = 1 + _Epsilon;
 
 
-				float3 faceOnePosition = P2Q(localPosition);
-				float3 faceOne = _Color013.xyz * step(faceOnePosition.x*faceOnePosition.x+faceOnePosition.y*faceOnePosition.y,.09*_SinTime.w*_SinTime.w+.09)+
-								 _CosTime.wyz * _CosTime.wyz * step(.09*_SinTime.w*_SinTime.w+.09,faceOnePosition.x*faceOnePosition.x+faceOnePosition.y*faceOnePosition.y);
+				float3 faceOnePosition = P2Q(p0,p3,p1,localPosition);
+				float3 faceTwoPosition = P2Q(p1,p3,p2,localPosition);
+				float3 faceThreePosition = P2Q(p0,p1,p2,localPosition);
+				float3 faceFourPosition = P2Q(p0,p2,p3,localPosition);
 
+				float3 faceOne = _Color013_2+(_Color013.xyz*_SinTime.yxw*_SinTime.yxw-_Color013_2.xyz) * step(dot(faceOnePosition,faceOnePosition),_Time.y- floor(_Time.y));
+				float3 faceTwo = _Color013_2+(_Color013.xyz*_SinTime.xyz*_SinTime.xyz-_Color013_2.xyz) * step(dot(faceTwoPosition,faceTwoPosition),_Time.y- floor(_Time.y));
+				float3 faceThree = _Color013_2+(_Color013.xyz*_CosTime.yxw*_CosTime.yxw-_Color013_2.xyz) * step(dot(faceThreePosition,faceThreePosition),_Time.y- floor(_Time.y));
+				float3 faceFour = _Color013_2+(_Color013.xyz*_CosTime.xyz*_CosTime.xyz-_Color013_2.xyz) * step(dot(faceFourPosition,faceFourPosition),.09*_SinTime.w*_SinTime.w+.09);
+
+
+				float fsad = dot(faceFourPosition,faceFourPosition);
 			
-				float3 fragColor =  faceOne * (step(dot(n013,localPosition), dot(n013,pt013) / eps)-step(dot(n013,localPosition), dot(n013,pt013) * eps)) 
-								 + 1.0 * _Color132.xyz * (step(dot(n132,localPosition), dot(n132,pt132) / eps)-step(dot(n132,localPosition), dot(n132,pt132) * eps))
-								 + 1.0 * _Color012.xyz * (step(dot(n012,localPosition), dot(n012,pt012) / eps)-step(dot(n012,localPosition), dot(n012,pt012) * eps))
-								 + 1.0 * _Color023.xyz * (step(dot(n023,localPosition), dot(n023,pt023) / eps)-step(dot(n023,localPosition), dot(n023,pt023) * eps));
+				float3 fragColor = faceOne * (step(dot(n013,localPosition), dot(n013,pt013) / eps)-step(dot(n013,localPosition), dot(n013,pt013) * eps)) 
+								 + faceTwo* (step(dot(n132,localPosition), dot(n132,pt132) / eps)-step(dot(n132,localPosition), dot(n132,pt132) * eps))
+								 + faceThree * (step(dot(n012,localPosition), dot(n012,pt012) / eps)-step(dot(n012,localPosition), dot(n012,pt012) * eps))
+								 + faceFour * (step(dot(n023,localPosition), dot(n023,pt023) / eps)-step(dot(n023,localPosition), dot(n023,pt023) * eps));
 
 				//return float4(P2Q(localPosition),1.0);
 				return float4(fragColor,1.0);
