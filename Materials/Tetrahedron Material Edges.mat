@@ -6,8 +6,8 @@ Material:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: Tetrahedron Material Manual Normals
-  m_Shader: {fileID: 4800000, guid: 199f56e7073314c9b97772964c1c3f38, type: 3}
+  m_Name: Tetrahedron Material Edges
+  m_Shader: {fileID: 4800000, guid: 5d26ee853d9a148d2993d77c24c2d7f8, type: 3}
   m_ShaderKeywords: _EMISSION
   m_LightmapFlags: 1
   m_EnableInstancingVariants: 0
