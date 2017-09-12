@@ -26,6 +26,8 @@
 
 			#include "UnityCG.cginc"
 
+			#define edge(j)(k) step(length(pos-p(j)),_Epsilon)+step(length(pos-p(k)),_Epsilon)+step(length(pos-p(j)-dot(pos-p(j),p(k)-p(j))/length(p(k)-p(j))*(p(k)-p(j))/length(p(k)-p(j))),_Epsilon)*step(length(pos-p(j))+length(pos-p(k))-length(p(k)-p(j)),_Epsilon)
+
 			float4 	_Tint;
 			float4 	_Color013;
 			float4 	_Color013_2;
@@ -123,6 +125,12 @@
 				return i;
 			}
 
+			float length(in float3 v, out float len){
+			    len = pow(dot(v,v),0.5);
+			    return len;
+			}
+
+
 			float4 MyFragmentProgram (Interpolators i) : SV_TARGET {
 
 				float3 n013 = float3(0.0,-pow(2.0,0.5),1.0);
@@ -146,23 +154,57 @@
 
 				float3 localPosition = i.localPosition;
 
-				float eps = 1 + _Epsilon;
-
 				float3 pos = localPosition;
 
-				float edge = pow(dot(pos-p0,pos-p0),0.5)+pow(dot(pos-p1,pos-p1),0.5)-pow(dot(p1-p0,p1-p0),0.5); //y
+				/*
 
-				float3 edgepos = pos * step(_Delta,edge); //x
+				float3 proj01 = dot(pos-p0,p1-p0)/length(p1-p0)*(p1-p0)/length(p1-p0);
+				float3 proj02 = dot(pos-p0,p2-p0)/length(p2-p0)*(p2-p0)/length(p2-p0);
+				float3 proj03 = dot(pos-p0,p3-p0)/length(p3-p0)*(p3-p0)/length(p3-p0);
+				float3 proj12 = dot(pos-p1,p2-p1)/length(p2-p1)*(p2-p1)/length(p2-p1);
+				float3 proj13 = dot(pos-p1,p3-p1)/length(p3-p1)*(p3-p1)/length(p3-p1);
+				float3 proj23 = dot(pos-p2,p3-p2)/length(p3-p2)*(p3-p2)/length(p3-p2);
 
-				float dist = dot(pos-edgepos,pos-edgepos);
+				
+				float3 fragColor = float3(1,1,0)*(
 
-				float3 fragColor = float3(1,1,0)*step(_Epsilon,dist);
+					step(length(pos-p0),_Epsilon)+
+			        step(length(pos-p1),_Epsilon)+
+			        step(length(pos-p0-proj01),_Epsilon)*step(length(pos-p0)+length(pos-p1)-length(p1-p0),_Epsilon)
+			        +
+			        step(length(pos-p0),_Epsilon)+
+			        step(length(pos-p1),_Epsilon)+
+			        step(length(pos-p0-proj01),_Epsilon)*step(length(pos-p0)+length(pos-p1)-length(p1-p0),_Epsilon)
+			        +
+			        step(length(pos-p0),_Epsilon)+
+			        step(length(pos-p1),_Epsilon)+
+			        step(length(pos-p0-proj01),_Epsilon)*step(length(pos-p0)+length(pos-p1)-length(p1-p0),_Epsilon)
+			        +
+			        step(length(pos-p0),_Epsilon)+
+			        step(length(pos-p1),_Epsilon)+
+			        step(length(pos-p0-proj01),_Epsilon)*step(length(pos-p0)+length(pos-p1)-length(p1-p0),_Epsilon)
+			        +
+			        step(length(pos-p0),_Epsilon)+
+			        step(length(pos-p1),_Epsilon)+
+			        step(length(pos-p0-proj01),_Epsilon)*step(length(pos-p0)+length(pos-p1)-length(p1-p0),_Epsilon)
+			        +
+			        step(length(pos-p2),_Epsilon)+
+			        step(length(pos-p3),_Epsilon)+
+			        step(length(pos-p2-proj23),_Epsilon)*step(length(pos-p2)+length(pos-p3)-length(p3-p2),_Epsilon)
+				);
+				*/
 
-
-
-
+				float3 fragColor = float3(1,1,0)*(	
+					edge(0)(1)+
+					edge(0)(2)+
+					edge(0)(3)+
+					edge(1)(2)+
+					edge(1)(3)+
+					edge(2)(3)
+				);
 
 				return float4(fragColor,1.0);
+
 			}
 
 
