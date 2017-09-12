@@ -24,14 +24,21 @@ void main() {
 
     vec2 p0 = vec2(0.2,0.5);
     vec2 p1 = vec2(0.8,0.5);
+    vec2 p2 = vec2(0.3,0.6);
     float se = length(st);
     
-    vec2 proj = dot(st-p0,p1-p0)/length(p1-p0)*(p1-p0)/length(p1-p0);
+    float _Epsilon = 0.001;
     
-    color = vec3(1.0,1.0,0)*(
-        step(length(st-p0),0.02)+
-        step(length(st-p1),0.02)+
-        step(length(st-p0-proj),0.02)*step(length(st-p0)+length(st-p1)-length(p1-p0),0.02)
+    vec2 proj1 = dot(st-p0,p1-p0)/length(p1-p0)*(p1-p0)/length(p1-p0);
+    vec2 proj2 = dot(st-p0,p2-p0)/length(p2-p0)*(p2-p0)/length(p2-p0);
+    color = vec3(1.0,1.0,1.0)*(
+        step(length(st-p0),_Epsilon)+
+        step(length(st-p1),_Epsilon)+
+        step(length(st-p0-proj1),_Epsilon)*step(length(st-p0)+length(st-p1)-length(p1-p0),_Epsilon)+
+        step(length(st-p0),_Epsilon)+
+        step(length(st-p2),_Epsilon)+
+        step(length(st-p0-proj2),_Epsilon)*step(length(st-p0)+length(st-p2)-length(p2-p0),_Epsilon)
+        
         );
     
     
