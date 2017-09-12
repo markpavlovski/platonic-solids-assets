@@ -1,3 +1,15 @@
-0.18301270189		0.5		-0.683012701892
--0.5				1		-0.5		
--0.683012701892		0.5		0.18301270189
+Receive vertex data: Vertices, Triangles
+
+For every triangle:
+	calculate normals
+	determine adjacent triangles - will share 2 out of 3 indices
+
+Then:
+	calculate edge normals by summing two adjacent triangle normals
+	calculate edge tangents by taking cross product of the edge normal with the edge vector
+			if the two neighboring triangles have teh same normals, option to turn off those triangles
+
+
+Hold on:
+
+	Paint a cylinder of radius eps to pass through each two adjacent vertices!!!!

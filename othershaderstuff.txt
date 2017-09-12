@@ -1,0 +1,39 @@
+// Author:
+// Title:
+
+#ifdef GL_ES
+precision mediump float;
+#endif
+
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+uniform float u_time;
+
+float length(in vec2 v, out float len){
+    len = pow(dot(v,v),0.5);
+    return len;
+}
+
+
+void main() {
+    vec2 st = gl_FragCoord.xy/u_resolution.xy;
+   // st.x *= u_resolution.x/u_resolution.y;
+
+    vec3 color = vec3(0.);
+    color = vec3(st.x,st.y,abs(sin(u_time)));
+
+    vec2 p0 = vec2(0.2,0.5);
+    vec2 p1 = vec2(0.8,0.5);
+    float se = length(st);
+    
+    vec2 proj = dot(st-p0,p1-p0)/length(p1-p0)*(p1-p0)/length(p1-p0);
+    
+    color = vec3(1.0,1.0,0)*(
+        step(length(st-p0),0.02)+
+        step(length(st-p1),0.02)+
+        step(length(st-p0-proj),0.02)*step(length(st-p0)+length(st-p1)-length(p1-p0),0.02)
+        );
+    
+    
+    gl_FragColor = vec4(color,1.0);
+}
