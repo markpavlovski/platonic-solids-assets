@@ -35,7 +35,7 @@
 
 			#include "UnityCG.cginc"
 
-			#define edge(j,k) step(length(pos-p[j]-dot(pos-p[j],p[k]-p[j])/length(p[k]-p[j])*(p[k]-p[j])/length(p[k]-p[j])),_Epsilon)*step(length(pos-p[j])+length(pos-p[k])-length(p[k]-p[j]),_Epsilon)
+			#define edge(j,k) step(length(pos-p[j]),_Epsilon)+step(length(pos-p[k]),_Epsilon)+step(length(pos-p[j]-dot(pos-p[j],p[k]-p[j])/length(p[k]-p[j])*(p[k]-p[j])/length(p[k]-p[j])),_Epsilon)*step(length(pos-p[j])+length(pos-p[k])-length(p[k]-p[j]),_Epsilon)
 
 			float4 	_EdgeColor;
 			float4 	_Color013;
@@ -179,7 +179,7 @@
 					edge(2,3)
 				);
 
-
+				/*
 				float eps = 1 + _Epsilon;
 
 
@@ -199,7 +199,8 @@
 								 + faceThree * (step(dot(n012,localPosition), dot(n012,pt012) / eps)-step(dot(n012,localPosition), dot(n012,pt012) * eps))
 								 + faceFour * (step(dot(n023,localPosition), dot(n023,pt023) / eps)-step(dot(n023,localPosition), dot(n023,pt023) * eps));
 
-
+				*/
+				float3 faceColor = _Color013;
 				return fragColor + float4(faceColor.xyz,_TransparencyFace);
 
 			}

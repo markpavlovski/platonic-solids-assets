@@ -60,7 +60,7 @@ Material:
     - _Delta: 0.01
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _Epsilon: 0.01
+    - _Epsilon: 0.025
     - _GlossMapScale: 1
     - _Glossiness: 1
     - _GlossyReflections: 1
@@ -72,18 +72,18 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Transparency: 0.088
-    - _TransparencyEdge: 1
-    - _TransparencyFace: 0.886
+    - _TransparencyEdge: 0.225
+    - _TransparencyFace: 0.299
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Color012: {r: 0.1316937, g: 0.3602941, b: 0, a: 1}
-    - _Color013: {r: 1, g: 0, b: 0, a: 1}
+    - _Color013: {r: 0.52941173, g: 0.62598073, b: 0.75, a: 1}
     - _Color013_2: {r: 0.8161765, g: 0.7669245, b: 0.10202206, a: 1}
     - _Color023: {r: 0, g: 0.04827571, b: 1, a: 1}
     - _Color132: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     - _ColorOne: {r: 0.9558824, g: 0.826848, b: 0.10542819, a: 1}
-    - _EdgeColor: {r: 0.7647059, g: 0.74361044, b: 0, a: 1}
+    - _EdgeColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0.46323532, g: 0.21799308, b: 0.21799308, a: 1}
     - _Tint: {r: 1, g: 1, b: 1, a: 1}
