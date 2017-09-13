@@ -2,14 +2,14 @@
 
 	Properties {
 
-		_Tint ("Tint", Color) = (1,1,1,1)
+		_EdgeColor ("Edge Color", Color) = (1,1,1,1)
 		_MainTex( "Texture", 2D) = "white" {}
 		_Color013 ("Color013", Color) = (1,1,1,1)
 		_Color013_2 ("Color013_2", Color) = (1,1,1,1)
 		_Color012 ("Color012", Color) = (1,1,1,1)
 		_Color023 ("Color023", Color) = (1,1,1,1)
 		_Color132 ("Color132", Color) = (1,1,1,1)
-		_Epsilon ("Epsilon", Range(0,1)) = 0.01
+		_Epsilon ("Epsilon", Range(0,1)) = 0.001
 		_Delta ("Delta", Range(0,1)) = 0.01
 
 	}
@@ -20,15 +20,17 @@
 		Pass {
 
 			CGPROGRAM
+			// Upgrade NOTE: excluded shader from DX11, OpenGL ES 2.0 because it uses unsized arrays
+			#pragma exclude_renderers d3d11 gles
 
 			#pragma vertex MyVertexProgram
 			#pragma fragment MyFragmentProgram
 
 			#include "UnityCG.cginc"
 
-			#define edge(j)(k) step(length(pos-p(j)),_Epsilon)+step(length(pos-p(k)),_Epsilon)+step(length(pos-p(j)-dot(pos-p(j),p(k)-p(j))/length(p(k)-p(j))*(p(k)-p(j))/length(p(k)-p(j))),_Epsilon)*step(length(pos-p(j))+length(pos-p(k))-length(p(k)-p(j)),_Epsilon)
+			#define edge(j,k) step(length(pos-p[j]),_Epsilon)+step(length(pos-p[k]),_Epsilon)+step(length(pos-p[j]-dot(pos-p[j],p[k]-p[j])/length(p[k]-p[j])*(p[k]-p[j])/length(p[k]-p[j])),_Epsilon)*step(length(pos-p[j])+length(pos-p[k])-length(p[k]-p[j]),_Epsilon)
 
-			float4 	_Tint;
+			float4 	_EdgeColor;
 			float4 	_Color013;
 			float4 	_Color013_2;
 			float4 	_Color132;
@@ -151,57 +153,24 @@
 				float3 pt023 = ptA;
 				float3 pt132 = ptB;
 
+				float3  p[4] =  {p0, p1, p2, p3};
+
+
 
 				float3 localPosition = i.localPosition;
 
 				float3 pos = localPosition;
 
-				/*
-
-				float3 proj01 = dot(pos-p0,p1-p0)/length(p1-p0)*(p1-p0)/length(p1-p0);
-				float3 proj02 = dot(pos-p0,p2-p0)/length(p2-p0)*(p2-p0)/length(p2-p0);
-				float3 proj03 = dot(pos-p0,p3-p0)/length(p3-p0)*(p3-p0)/length(p3-p0);
-				float3 proj12 = dot(pos-p1,p2-p1)/length(p2-p1)*(p2-p1)/length(p2-p1);
-				float3 proj13 = dot(pos-p1,p3-p1)/length(p3-p1)*(p3-p1)/length(p3-p1);
-				float3 proj23 = dot(pos-p2,p3-p2)/length(p3-p2)*(p3-p2)/length(p3-p2);
-
-				
-				float3 fragColor = float3(1,1,0)*(
-
-					step(length(pos-p0),_Epsilon)+
-			        step(length(pos-p1),_Epsilon)+
-			        step(length(pos-p0-proj01),_Epsilon)*step(length(pos-p0)+length(pos-p1)-length(p1-p0),_Epsilon)
-			        +
-			        step(length(pos-p0),_Epsilon)+
-			        step(length(pos-p1),_Epsilon)+
-			        step(length(pos-p0-proj01),_Epsilon)*step(length(pos-p0)+length(pos-p1)-length(p1-p0),_Epsilon)
-			        +
-			        step(length(pos-p0),_Epsilon)+
-			        step(length(pos-p1),_Epsilon)+
-			        step(length(pos-p0-proj01),_Epsilon)*step(length(pos-p0)+length(pos-p1)-length(p1-p0),_Epsilon)
-			        +
-			        step(length(pos-p0),_Epsilon)+
-			        step(length(pos-p1),_Epsilon)+
-			        step(length(pos-p0-proj01),_Epsilon)*step(length(pos-p0)+length(pos-p1)-length(p1-p0),_Epsilon)
-			        +
-			        step(length(pos-p0),_Epsilon)+
-			        step(length(pos-p1),_Epsilon)+
-			        step(length(pos-p0-proj01),_Epsilon)*step(length(pos-p0)+length(pos-p1)-length(p1-p0),_Epsilon)
-			        +
-			        step(length(pos-p2),_Epsilon)+
-			        step(length(pos-p3),_Epsilon)+
-			        step(length(pos-p2-proj23),_Epsilon)*step(length(pos-p2)+length(pos-p3)-length(p3-p2),_Epsilon)
+		
+				float3 fragColor = _EdgeColor*(	
+					edge(0,1)+
+					edge(0,2)+
+					edge(0,3)+
+					edge(1,2)+
+					edge(1,3)+
+					edge(2,3)
 				);
-				*/
 
-				float3 fragColor = float3(1,1,0)*(	
-					edge(0)(1)+
-					edge(0)(2)+
-					edge(0)(3)+
-					edge(1)(2)+
-					edge(1)(3)+
-					edge(2)(3)
-				);
 
 				return float4(fragColor,1.0);
 
