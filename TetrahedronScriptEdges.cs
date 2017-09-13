@@ -11,6 +11,7 @@ public class TetrahedronScript : MonoBehaviour {
 	float w = 1 / Mathf.Sqrt (2);
 	Mesh tetrahedronMesh;
 	static float normalizedScale = 1f/1f;
+	float angleThreshold = 5;
 
 	/*
 	private void OnDrawGizmos () {
@@ -83,12 +84,11 @@ public class TetrahedronScript : MonoBehaviour {
 
 		int triangleCount = tr.length/3;
 
-		Vector3[] normals = new Vector3[trinagleCount];
+		Vector3[] normals = new Vector3[triangleCount];
 
 		int[,] edges = new int[p.length*trDensity,2];
 		int[,] edgeTriangles = new int[p.length*trDensity,2];
-		float[] edgeAngles = new int[p.length*trDensity];
-
+		
 		int[] triangle = new int[3];
 		int[] triangleOrdered = new int[3];
 
@@ -105,24 +105,60 @@ public class TetrahedronScript : MonoBehaviour {
 			triangleOrdered = Array.Sort(triangle);
 			
 			// populate edge matrix
-			if 
 
+			int ind0 = triangleDensity * triangleOrdered[0];
+			int ind1 = triangleDensity * triangleOrdered[1];
 
-
+			for (int k = 0; k < triangleDensity; k++){
+				if (edges[ind0+k,1] == null){
+					edges[ind0+k,0] = triangleOrdered[0];
+					edges[ind0+k,1] = triangleOrdered[1];
+					edgeTriangles[ind0+k,0] = i;
+					break;
+				} else if (edges[ind0+k,1] == triangleOrdered[1]) {
+					edgeTriangles[ind0+k,1] = i;
+					break;
+				} 
+			}
+			for (int k = 0, k < triangleDensity, k++){
+				if (edges[ind0+k,1] == null){
+					edges[ind0+k,0] = triangleOrdered[0];
+					edges[ind0+k,1] = triangleOrdered[2];
+					edgeTriangles[ind0+k,0] = i;
+					break;
+				} else if (edges[ind0+k,1] == triangleOrdered[2]) {
+					edgeTriangles[ind0+k,1] = i;
+					break;
+				} 
+			}
+			for (int k = 0, k < triangleDensity, k++){
+				if (edges[ind1+k,1] == null){
+					edges[ind1+k,0] = triangleOrdered[1];
+					edges[ind1+k,1] = triangleOrdered[2];
+					edgeTriangles[ind0+k,0] = i;
+					break;
+				} else if (edges[ind1+k,1] == triangleOrdered[2]) {
+					edgeTriangles[ind0+k,1] = i;
+					break;
+				} 
+			}
 
 		}
 
 
-
-
-
-
-
-
+		int[,] finalEdges = new int[,2];
+		for (int i=0,int j=0; i < edges.length; i++){
+			if (edges[i,1]!=0){
+				float edgeAngle = Vector3.Angle(normals[edgeTriangles[i,0]],normals[edgeTriangles[i,1]]);
+				if (edgeAngle < angleThreshold){
+					finalEdges[j,0]=edges[i,0];
+					finalEdges[j,1]=edges[i,1];
+					j++;
+				}
+			}
+		}
+		//System.IO.File.WriteAllText("C:\blahblah_yourfilepath\yourtextfile.txt", "This is text that goes into the text file");
 	}
-
-
-
 
 
 
@@ -134,7 +170,7 @@ public class TetrahedronScript : MonoBehaviour {
 	void Update(){
 		transform.localRotation = Quaternion.Euler ((float)DateTime.Now.TimeOfDay.TotalSeconds * 15f* 2,(float)DateTime.Now.TimeOfDay.TotalSeconds * 20f* 2,(float)DateTime.Now.TimeOfDay.TotalSeconds * 25f* 2);
 		//transform.localRotation = Quaternion.Euler (0f, 0f, 0f);
-		}
+	}
 		
 
 }
