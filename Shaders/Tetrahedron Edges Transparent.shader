@@ -1,36 +1,51 @@
-﻿Shader "Custom / Tetrahedron Manual Normals" {
+﻿Shader "Custom / Tetrahedron Edges Transparent" {
 
 	Properties {
 
-		_Tint ("Tint", Color) = (1,1,1,1)
+		_EdgeColor ("Edge Color", Color) = (1,1,1,1)
 		_MainTex( "Texture", 2D) = "white" {}
 		_Color013 ("Color013", Color) = (1,1,1,1)
 		_Color013_2 ("Color013_2", Color) = (1,1,1,1)
 		_Color012 ("Color012", Color) = (1,1,1,1)
 		_Color023 ("Color023", Color) = (1,1,1,1)
 		_Color132 ("Color132", Color) = (1,1,1,1)
-		_Epsilon ("Epsilon", Range(0,1)) = 0.01
+		_Epsilon ("Epsilon", Range(0,1)) = 0.001
+        _TransparencyEdge ("Transparency Edge", Range(0,1)) = 0.5
+        _TransparencyFace ("Transparency Face", Range(0,1)) = 0.5
+
+
 	}
 
 
 	Subshader {
+		Tags {"Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent"}
+		ZWrite Off
+        Blend SrcAlpha OneMinusSrcAlpha
+ 
+
 
 		Pass {
 
 			CGPROGRAM
-
+			// Upgrade NOTE: excluded shader from DX11, OpenGL ES 2.0 because it uses unsized arrays
+			#pragma exclude_renderers d3d11 gles
+			#pragma target 3.0
 			#pragma vertex MyVertexProgram
 			#pragma fragment MyFragmentProgram
 
 			#include "UnityCG.cginc"
 
-			float4 	_Tint;
+			#define edge(j,k) step(length(pos-p[j]-dot(pos-p[j],p[k]-p[j])/length(p[k]-p[j])*(p[k]-p[j])/length(p[k]-p[j])),_Epsilon)*step(length(pos-p[j])+length(pos-p[k])-length(p[k]-p[j]),_Epsilon)
+
+			float4 	_EdgeColor;
 			float4 	_Color013;
 			float4 	_Color013_2;
 			float4 	_Color132;
 			float4 	_Color012;
 			float4 	_Color023;
 			float 	_Epsilon;
+			float 	_TransparencyEdge;
+			float 	_TransparencyFace;
 
 			float w = 0.70710678118;
 			float pi = 3.14159265359;
@@ -120,6 +135,12 @@
 				return i;
 			}
 
+			float length(in float3 v, out float len){
+			    len = pow(dot(v,v),0.5);
+			    return len;
+			}
+
+
 			float4 MyFragmentProgram (Interpolators i) : SV_TARGET {
 
 				float3 n013 = float3(0.0,-pow(2.0,0.5),1.0);
@@ -140,8 +161,24 @@
 				float3 pt023 = ptA;
 				float3 pt132 = ptB;
 
+				float3  p[4] =  {p0, p1, p2, p3};
+
+
 
 				float3 localPosition = i.localPosition;
+
+				float3 pos = localPosition;
+
+		
+				float4 fragColor = float4(_EdgeColor.xyz,_TransparencyEdge)*(	
+					edge(0,1)+
+					edge(0,2)+
+					edge(0,3)+
+					edge(1,2)+
+					edge(1,3)+
+					edge(2,3)
+				);
+
 
 				float eps = 1 + _Epsilon;
 
@@ -151,19 +188,20 @@
 				float3 faceThreePosition = P2Q(p0,p1,p2,localPosition);
 				float3 faceFourPosition = P2Q(p0,p2,p3,localPosition);
 
-				float3 faceOne = _Color013_2+(_Color013.xyz*_SinTime.yxw*_SinTime.yxw-_Color013_2.xyz) * step(dot(faceOnePosition,faceOnePosition),_Time.y- floor(_Time.y));
-				float3 faceTwo = _Color013_2+(_Color013.xyz*_SinTime.xyz*_SinTime.xyz-_Color013_2.xyz) * step(dot(faceTwoPosition,faceTwoPosition),_Time.y- floor(_Time.y));
-				float3 faceThree = _Color013_2+(_Color013.xyz*_CosTime.yxw*_CosTime.yxw-_Color013_2.xyz) * step(dot(faceThreePosition,faceThreePosition),_Time.y- floor(_Time.y));
+				float3 faceOne = _Color013;
+				float3 faceTwo = _Color012;
+				float3 faceThree = _Color023;
 				float3 faceFour = _Color013_2+(_Color013.xyz*_CosTime.xyz*_CosTime.xyz-_Color013_2.xyz) * step(dot(faceFourPosition,faceFourPosition),.09*_SinTime.w*_SinTime.w+.09);
 
 						
-				float3 fragColor = faceOne * (step(dot(n013,localPosition), dot(n013,pt013) / eps)-step(dot(n013,localPosition), dot(n013,pt013) * eps)) 
+				float3 faceColor = faceOne * (step(dot(n013,localPosition), dot(n013,pt013) / eps)-step(dot(n013,localPosition), dot(n013,pt013) * eps)) 
 								 + faceTwo* (step(dot(n132,localPosition), dot(n132,pt132) / eps)-step(dot(n132,localPosition), dot(n132,pt132) * eps))
 								 + faceThree * (step(dot(n012,localPosition), dot(n012,pt012) / eps)-step(dot(n012,localPosition), dot(n012,pt012) * eps))
 								 + faceFour * (step(dot(n023,localPosition), dot(n023,pt023) / eps)-step(dot(n023,localPosition), dot(n023,pt023) * eps));
 
-				//return float4(P2Q(localPosition),1.0);
-				return float4(fragColor,1.0);
+
+				return fragColor + float4(faceColor.xyz,_TransparencyFace);
+
 			}
 
 

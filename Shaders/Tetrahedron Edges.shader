@@ -11,18 +11,25 @@
 		_Color132 ("Color132", Color) = (1,1,1,1)
 		_Epsilon ("Epsilon", Range(0,1)) = 0.001
 		_Delta ("Delta", Range(0,1)) = 0.01
+		_Glossiness ("Smoothness", Range(0,1)) = 0.5
+        _Metallic ("Metallic", Range(0,1)) = 0.0
 
 	}
 
 
 	Subshader {
+		Tags {"Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent"}
+		ZWrite Off
+        Blend SrcAlpha OneMinusSrcAlpha
+ 
+
 
 		Pass {
 
 			CGPROGRAM
 			// Upgrade NOTE: excluded shader from DX11, OpenGL ES 2.0 because it uses unsized arrays
 			#pragma exclude_renderers d3d11 gles
-
+			#pragma target 3.0
 			#pragma vertex MyVertexProgram
 			#pragma fragment MyFragmentProgram
 
@@ -172,7 +179,7 @@
 				);
 
 
-				return float4(fragColor,1.0);
+				return float4(fragColor,0.5);
 
 			}
 
