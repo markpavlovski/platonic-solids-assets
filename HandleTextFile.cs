@@ -33,6 +33,5 @@ public class HandleTextFile
         reader.Close();
     }
 
-    //System.IO.File.WriteAllText("C:\blahblah_yourfilepath\yourtextfile.txt", "This is text that goes into the text file");
-
+    
 }

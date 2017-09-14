@@ -157,8 +157,26 @@ public class TetrahedronScript : MonoBehaviour {
 				}
 			}
 		}
-		//System.IO.File.WriteAllText("C:\blahblah_yourfilepath\yourtextfile.txt", "This is text that goes into the text file");
+		string[] lines = { "First line", "Second line", "Third line" };
+		System.IO.File.WriteAllLines(@"C:\Users\Public\TestFolder\WriteLines.txt", lines);
+
+		string[] shaderString;
+		shaderString[0] = "float3  p[" + p.length.ToString() +"] =  {"
+		for (int i = 0; i < p.length-1; i++){
+			shaderString[i+1] = "float3("+p[i].x.ToString()+","+p[i].y.ToString()+","+p[i].z.ToString()+"),";
+		}
+		shaderString[p.length] = "float3("+p[p.length-1].x.ToString()+","+p[p.length-1].y.ToString()+","+p[p.length-1].z.ToString()+")};";
+		
+
+		shaderString[p.length+1]	= "float3 fragColor = _EdgeColor*(";
+		for (int i = 0;i < edges.length-1;i++){
+			shaderString[p.length+1+i] = "edge("+finalEdges[i,0].ToString()+","+finalEdges[i,1].ToString()+")+";
+		}
+		shaderString[p.length+edges.length] = "edge("+finalEdges[edges.length-1,0].ToString()+","+finalEdges[edges.length-1,1].ToString()+"));";
+
+		System.IO.File.WriteAllLines(@"C:\Users\Public\TestFolder\ShaderString.cginc", shaderString);
 	}
+        
 
 
 
