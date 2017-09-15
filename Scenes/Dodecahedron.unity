@@ -191,7 +191,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 556451483}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalPosition: {x: 0, y: 0, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -226,6 +226,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dodecahedronMaterial: {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
   p: []
+  normalizedScale: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
 --- !u!4 &952991178
 Transform:
   m_ObjectHideFlags: 0
